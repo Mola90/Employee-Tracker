@@ -42,7 +42,7 @@ function viewAllEmployees (){
         db.query(query, (err,result) => err? console.log("err" + err): console.log(result));
 };
 
-function addEmploee(){
+function addEmployee(){
 
     db.query(`SELECT id, title FROM role`, (err, roles) => {
         if (err){
@@ -164,6 +164,57 @@ function viewAllDepartments (){
     db.query(query, (err,result) => err? console.log("err" + err): console.table(result));
 };
 
+function addRole(){
+
+    db.query(`SELECT id, name FROM department`, (err, departments) => {
+        if (err) {
+            console.log("Error fetching departments: " + err);
+            return;
+        }
+
+        const departmentChoices = departments.map(department => ({
+            name: department.name,
+            value: department.id
+        }));
+
+        const newRoleQuestions = [
+            {
+                type: "input",
+                name: "role_title",
+                message: "Please enter the title of the new role:"
+            },
+            {
+                type: "input",
+                name: "role_salary",
+                message: "Please enter the salary of the new role:"
+            },
+            {
+                type: "list",
+                name: "department_id",
+                message: "Please choose the department for the new role:",
+                choices: departmentChoices
+            }
+        ];
+
+        inquirer.prompt(newRoleQuestions).then((answers) => {
+            const { role_title, role_salary, department_id } = answers;
+
+            db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`, [role_title, role_salary, department_id], (err, result) => {
+                if (err) {
+                    console.log("Error: " + err);
+                } else {
+                    console.log("Role added successfully!");
+                }
+            });
+        });
+    });
+
+};
+
+
+
+
+
 
 
 inquirer.prompt(initialQuestions).then((answer) =>{
@@ -173,7 +224,7 @@ inquirer.prompt(initialQuestions).then((answer) =>{
             viewAllEmployees();
             break;
         case "Add Employee":
-            addEmploee();
+            addEmployee();
             break;
         case "Update Employee Role":
             updateEmployeeRole();
