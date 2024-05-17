@@ -153,11 +153,18 @@ function addDepartment(){
             const { department_name} = answers;
             
             db.query(`INSERT INTO department (name) VALUES (?)`, [department_name], (err,result) => err? console.log("err" + err): console.log("department added" + result));
-        });
-
-    
+        });    
 
 };
+
+function viewAllDepartments (){
+    
+    const query =`SELECT id, name FROM department`;  
+
+    db.query(query, (err,result) => err? console.log("err" + err): console.table(result));
+};
+
+
 
 inquirer.prompt(initialQuestions).then((answer) =>{
     switch (answer.questions) {
