@@ -135,6 +135,30 @@ function viewRoles (){
     });
 }
 
+
+function addDepartment(){
+
+ 
+
+        const newDepartmentData = [
+            {
+                type: "input",
+                name: "department_name",
+                message: "Please enter new department name"
+            },
+            
+        ];
+
+        inquirer.prompt(newDepartmentData).then((answers) =>{
+            const { department_name} = answers;
+            
+            db.query(`INSERT INTO department (name) VALUES (?)`, [department_name], (err,result) => err? console.log("err" + err): console.log("department added" + result));
+        });
+
+    
+
+};
+
 inquirer.prompt(initialQuestions).then((answer) =>{
     switch (answer.questions) {
         case "View All Employees":
