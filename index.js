@@ -121,7 +121,19 @@ function updateEmployeeRole(){
 });
 };
 
+function viewRoles (){
+    const query =
+    `SELECT role.id, role.title, department.name AS department, role.salary FROM role
+    JOIN department ON role.department_id = department.id`;
 
+    db.query(query, (err, roles) =>{
+        if (err) {
+            console.log(err);  
+            return;          
+        }
+        console.table(roles);
+    });
+}
 
 inquirer.prompt(initialQuestions).then((answer) =>{
     switch (answer.questions) {
@@ -135,8 +147,8 @@ inquirer.prompt(initialQuestions).then((answer) =>{
         case "Update Employee Role":
             updateEmployeeRole();
             break;
-        case "test":
-            //function
+        case "View All Roles":
+            viewRoles();
             break;    
     }
 
