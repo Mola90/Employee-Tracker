@@ -81,6 +81,48 @@ function addEmploee(){
 
 };
 
+function updateEmployeeRole(){
+    db.query(`SELECT id, CONCAT(first_name, ' ' , last_name) AS name FROM employee`, (err, result) => {
+
+        const employeeChoices = result.map(result => ({ name: result.name, value: result.id }));
+
+        db.query(`SELECT id, title FROM role`, (err, roles) => {
+            if (err){
+                console.log("error:" + err);
+                return;
+            }
+    
+            const roleChoices = roles.map(role => ({ name: role.title, value: role.id }));
+
+            const updatedRoleData = [
+                {
+                    type: "list",
+                    name: "employee_id",
+                    message: "Please choose which employees role you will update",
+                    choices: employeeChoices
+                },
+                {
+                    type: "list",
+                    name: "role_id",
+                    message: "Please choose new role",
+                    choices: roleChoices,
+                },
+            ];
+
+            inquirer.prompt(updatedRoleData).then((answer) => {
+                const {employee_id, role_id} = answer;
+
+                db.query(`UPDATE employee SET role_id = ? WHERE id =?`, [role_id, employee_id], (err, result) => err? console.log("err" + err): console.log("employee added" + result));
+            });
+
+
+
+        });
+});
+};
+
+
+
 inquirer.prompt(initialQuestions).then((answer) =>{
     switch (answer.questions) {
         case "View All Employees":
@@ -90,9 +132,12 @@ inquirer.prompt(initialQuestions).then((answer) =>{
         case "Add Employee":
             addEmploee();
             break;
-        case "test3":
-            //function call
+        case "Update Employee Role":
+            updateEmployeeRole();
             break;
+        case "test":
+            //function
+            break;    
     }
 
 });
