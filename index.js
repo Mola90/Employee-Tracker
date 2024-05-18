@@ -28,6 +28,7 @@ const initialQuestions = [
 
 function viewAllEmployees (){
     
+    return new Promise(resolve => {
         const query =`
         SELECT employee.id,
                employee.first_name,
@@ -39,10 +40,15 @@ function viewAllEmployees (){
         JOIN role ON employee.role_id = role.id
         JOIN department ON role.department_id = department.id`;  
 
-        db.query(query, (err,result) => err? console.log("err" + err): console.log(result));
+        db.query(query, (err,result) => err? console.log("err" + err): console.table(result));
+
+        setTimeout(resolve, 2000);
+    });
+    
 };
 
 function addEmployee(){
+    return new Promise(resolve => {
 
     db.query(`SELECT id, title FROM role`, (err, roles) => {
         if (err){
@@ -79,9 +85,14 @@ function addEmployee(){
 
     });
 
+    setTimeout(resolve, 15000);
+});
+
+
 };
 
 function updateEmployeeRole(){
+    return new Promise(resolve => {
     db.query(`SELECT id, CONCAT(first_name, ' ' , last_name) AS name FROM employee`, (err, result) => {
 
         const employeeChoices = result.map(result => ({ name: result.name, value: result.id }));
@@ -112,16 +123,21 @@ function updateEmployeeRole(){
             inquirer.prompt(updatedRoleData).then((answer) => {
                 const {employee_id, role_id} = answer;
 
-                db.query(`UPDATE employee SET role_id = ? WHERE id =?`, [role_id, employee_id], (err, result) => err? console.log("err" + err): console.log("employee added" + result));
+                db.query(`UPDATE employee SET role_id = ? WHERE id =?`, [role_id, employee_id], (err, result) => err? console.log("err" + err): console.table(result));
             });
 
 
 
         });
 });
+
+setTimeout(resolve, 13000);
+});
+
 };
 
 function viewRoles (){
+    return new Promise(resolve => {
     const query =
     `SELECT role.id, role.title, department.name AS department, role.salary FROM role
     JOIN department ON role.department_id = department.id`;
@@ -133,13 +149,17 @@ function viewRoles (){
         }
         console.table(roles);
     });
+
+    setTimeout(resolve, 2000);
+});
+
 }
 
 
-function addDepartment(){
+ function addDepartment(){
 
  
-
+    return new Promise(resolve => {
         const newDepartmentData = [
             {
                 type: "input",
@@ -149,22 +169,31 @@ function addDepartment(){
             
         ];
 
-        inquirer.prompt(newDepartmentData).then((answers) =>{
+          inquirer.prompt(newDepartmentData).then((answers) =>{
             const { department_name} = answers;
             
-            db.query(`INSERT INTO department (name) VALUES (?)`, [department_name], (err,result) => err? console.log("err" + err): console.log("department added" + result));
+            db.query(`INSERT INTO department (name) VALUES (?)`, [department_name], (err,result) => err? console.log("err" + err): console.table(result));
         });    
+
+        setTimeout(resolve, 12000);
+    });
 
 };
 
 function viewAllDepartments (){
+    return new Promise(resolve => {
     
     const query =`SELECT id, name FROM department`;  
 
     db.query(query, (err,result) => err? console.log("err" + err): console.table(result));
+
+    setTimeout(resolve, 2000);
+});
+
 };
 
 function addRole(){
+    return new Promise(resolve => {
 
     db.query(`SELECT id, name FROM department`, (err, departments) => {
         if (err) {
@@ -209,30 +238,46 @@ function addRole(){
         });
     });
 
+    setTimeout(resolve, 15000);
+});
+
+
 };
 
 
 
 
-
+function init () {
 
 
 inquirer.prompt(initialQuestions).then((answer) =>{
     switch (answer.questions) {
         case "View All Employees":
-            ///function call
-            viewAllEmployees();
+            viewAllEmployees().then(init);
             break;
         case "Add Employee":
-            addEmployee();
+            addEmployee().then(init)
             break;
         case "Update Employee Role":
-            updateEmployeeRole();
+            updateEmployeeRole().then(init);
             break;
         case "View All Roles":
-            viewRoles();
+            viewRoles().then(init);
             break;    
+        case "Add A Role":
+            addRole().then(init);
+            break;
+        case "View ALL Departments":
+            viewAllDepartments().then(init);
+            break;
+        case "Add Department":
+            addDepartment().then(init);            
+            break;
+     
     }
 
 });
 
+}
+
+init();
